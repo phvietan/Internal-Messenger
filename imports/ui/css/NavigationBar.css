@@ -1,0 +1,14 @@
+.navbar .container {
+  width: 100%;
+}
+
+.navbar-collapse.collapse {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+
+.logo {
+  width: 125px;
+  height: 50px;
+}

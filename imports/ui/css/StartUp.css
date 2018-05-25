@@ -1,0 +1,86 @@
+.group {
+  padding-left: 38%;
+  padding-top: 10%;
+  width: 265px;
+  transition-duration: 0.2s;
+}
+
+.group h1 {
+  padding-left: 32%;
+  font-size: 35px;
+  padding-left: 57px;
+  font-weight: bold;
+}
+
+.group h2 {
+  padding-left: 32%;
+  font-size: 35px;
+  padding-left: 38px;
+  font-weight: bold;
+}
+
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  height: 35px;
+  margin: 4px 2px;
+  transition-duration: 0.2s;
+  cursor: pointer;
+  width: 200px;
+  margin-top: 15px;
+}
+
+.button1 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button1:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+.button2 {
+  padding: 5px 12px;
+  text-align: center;
+  font-size: 14px;
+  height: 35px;
+  margin: 4px 2px;
+  cursor: pointer;
+  color: red;
+  width: 200px;
+  border: none;
+}
+
+.button3 {
+  background-color: white;
+  border: none;
+}
+
+.button3:hover, .button3:focus, .button3:active {
+  text-decoration: underline;
+  background-color: white;
+  border: none !important;
+}
+
+.group .form span {
+  font-weight: bold;
+  padding-left: 5px;
+}
+
+.group .form {
+  padding-top: 10px;
+}
+
+.group .form input {
+  margin-top: 3px;
+  width: 200px;
+  height: 35px;
+}

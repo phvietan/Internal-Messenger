@@ -1,0 +1,52 @@
+/* CSS declarations go here */
+
+.type-group {
+  position: absolute;
+  margin-right: 10px;
+  height: 50px;
+  width: 100%;
+}
+.type-bar {
+  height: 100%;
+  font-size: 20px;
+  background-color: rgb(207, 228, 219);
+  width: 95%;
+  text-align: center;
+  margin-top: 10px;
+  margin-left: 10px;
+  border: none;
+}
+
+.type-group button {
+  height: 100%;
+}
+
+.chat-box {
+  list-style-type: none;
+  width: 100%;
+  height: 100%;
+}
+
+.chat-outer {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  width: 99.9%;
+  line-height: 30px;
+  font-size: 20px;
+  padding-bottom: 20px;
+}
+
+.chat-box li {
+  border: 2px solid rgb(211, 234, 255);
+  background-color: rgb(227, 249, 255);
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  width: 95%;
+}
+
+.system-log {
+  font-style: italic;
+  color: blue;
+  margin-left: 10px;
+}
