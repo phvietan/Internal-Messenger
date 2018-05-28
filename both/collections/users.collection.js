@@ -2,6 +2,8 @@ import { Mongo } from 'meteor/mongo';
 
 Chat = new Mongo.Collection('Chat');
 
+KickPassword = new Mongo.Collection('KickPassword');
+
 FileS = new FS.Collection("file", {
   stores: [new FS.Store.FileSystem("file")],
   filter: {
@@ -38,5 +40,6 @@ FileS.on('uploaded', function (fileObj) {
 
 module.exports = {
   Chat,
+  KickPassword,
   FileS
 }

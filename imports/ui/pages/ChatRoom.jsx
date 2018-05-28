@@ -5,10 +5,22 @@ import NavigationBar from '../components/NavigationBar';
 import UploadFileModal from '../components/UploadFileModal';
 import '../css/ChatRoom.css';
 
-function findSpace(s) {
+function getSpace(s) {
     for (let i = 0, n = s.length; i < n; ++i)
       if (s[i] == ' ') return i;
 }
+
+// document.onpaste = function(event){
+//   var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+//   console.log(JSON.stringify(items)); // will give you the mime types
+//   for (index in items) {
+//     var item = items[index];
+//     if (item.kind === 'file') {
+//       console.log(item);
+//       console.log('haha');
+//     }
+//   }
+// }
 
 export default class ChatRoom extends Component {
   constructor(props) {
@@ -27,6 +39,18 @@ export default class ChatRoom extends Component {
     if (text != '') {
       if (text == '/logout') {
         this.logout();
+        return;
+      }
+      if (text.slice(0,5) == '/kick') {
+        let n = text.length;
+        text = text.slice(6, n); //get the password and username
+        let space = getSpace(text); //get the index of the space between <password> <username>
+        let password = text.slice(0, space);
+        let username = text.slice(space+1, n);
+        Meteor.call('kick-user', password, this.props.user.username, username, (err, result) => {
+          alert(result);
+        });
+        document.getElementById('type-bar').value = '';
         return;
       }
       Meteor.call('chat-upload', text, this.props.user.username, (err) => {});
@@ -57,7 +81,7 @@ export default class ChatRoom extends Component {
     return (
       <div>
         <NavigationBar
-          logout={this.logout}
+          logout={this.logout.bind(this)}
           user={this.props.user}
         />
 
@@ -87,7 +111,7 @@ export default class ChatRoom extends Component {
                   <li key={index}>
                     <span style={{color:'black', fontWeight:'bold'}}>{value.user}: </span>
                       {value.type=='chat' &&
-                        <span>: {value.content}</span>
+                        <span>{value.content}</span>
                       }
                       {value.type=='file' &&
                         <a href={`/cfs/files/file/${value.fileId}`}

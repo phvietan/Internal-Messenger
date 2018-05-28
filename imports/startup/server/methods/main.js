@@ -21,5 +21,22 @@ Meteor.methods({
       user: username,
       type: 'file'
     });
+  },
+  'kick-user': function(password, userKick, userGotKicked) {
+    let P = KickPassword.find({}).fetch()[0].content;
+    if (userKick == userGotKicked)
+      return "You can't kick yourself, đùa bố mày à?";
+    if (password != P)
+      return "Password incorrect";
+    let user = Meteor.users.find({username: userGotKicked}).fetch();
+    if (user.length == 0) return "The user is not existed";
+    user = user[0];
+    Meteor.users.remove(user);
+    Chat.insert({
+      content: `${userKick} has the super key and has kicked ${userGotKicked}, BEWARE!!!`,
+      user: 'SYSTEM',
+      type: 'chat'
+    });
+    return 'Done';
   }
 });
