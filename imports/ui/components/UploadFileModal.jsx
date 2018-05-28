@@ -23,22 +23,13 @@ export default class UploadFileModal extends Component {
   submit() {
     let file = document.getElementById('formControlsFile').files[0];
     if (!file) return;
-
+    let name = file.name;
     let user = this.props.user;
     FileS.insert(file, function(err, fileObj) {
       let id = fileObj._id;
       //This code is pasted online
       //It will catch the event when the file is fully uploaded onto server
-      var cursor = FileS.find(id);
-      var liveQuery = cursor.observe({
-        changed: function(newFile) {
-          if (newFile.isUploaded()) {
-            liveQuery.stop();
-            //After file fully uploaded on server, update the documents of mongodb
-
-          }
-        }
-      });
+      Meteor.call('file-upload', user.username, id, name);
     });
     this.props.onHideUpload();
   }

@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { FormControl, Button } from 'react-bootstrap';
-import '../css/StartUp.css';
 import NavigationBar from '../components/NavigationBar';
+import '../css/StartUp.css';
 
 export default class Login extends Component {
   constructor(props) {
@@ -30,8 +30,6 @@ export default class Login extends Component {
     }
     this.setState({
       username: event.target.value
-    }, () => {
-      console.log(this.state.username);
     });
   }
 
@@ -48,6 +46,7 @@ export default class Login extends Component {
   render() {
     return (
       <div>
+        
         {/*<NavigationBar/>*/}
         <div className="group">
           <h1>Login</h1>

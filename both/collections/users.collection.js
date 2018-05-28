@@ -3,7 +3,17 @@ import { Mongo } from 'meteor/mongo';
 Chat = new Mongo.Collection('Chat');
 
 FileS = new FS.Collection("file", {
-  stores: [new FS.Store.FileSystem("file")]
+  stores: [new FS.Store.FileSystem("file")],
+  filter: {
+    maxSize: 20480,
+    onInvalid: function (message) {
+      if (Meteor.isClient) {
+        alert(message);
+      } else {
+        console.log(message);
+      }
+    }
+  }
 });
 
 FileS.allow({

@@ -23,6 +23,10 @@ export default class SignUp extends Component {
       alert('Password may not be empty');
       return;
     }
+    if (username=='SYSTEM') {
+      alert('Cannot create username as SYSTEM, Định troll bố à?');
+      return;
+    }
     Accounts.createUser({
         username: username,
         password: password

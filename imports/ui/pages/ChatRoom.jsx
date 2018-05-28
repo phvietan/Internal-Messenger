@@ -11,6 +11,12 @@ function findSpace(s) {
 }
 
 export default class ChatRoom extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      beginRender: true
+    }
+  }
   logout() {
     document.getElementById('type-bar').value = '';
     Meteor.call('chat-upload', `${this.props.user.username} has just logged out!!!`, 'SYSTEM');
@@ -33,10 +39,18 @@ export default class ChatRoom extends Component {
   }
   componentDidUpdate() {
     let box = document.getElementById('chat-outer');
-    box.scrollTop = box.scrollHeight;
+    if (box.scrollTop==0 && this.state.beginRender) {
+      this.setState({
+        beginRender: false
+      }, () => {
+        box.scrollTop = box.scrollHeight;
+      });
+    }
+    if (box.scrollHeight - 1500 <= box.scrollTop)
+      box.scrollTop = box.scrollHeight;
   }
   uploadFile() {
-
+    console.log('haha');
   }
   render() {
     let Height = window.innerHeight - 150;
@@ -46,24 +60,42 @@ export default class ChatRoom extends Component {
           logout={this.logout}
           user={this.props.user}
         />
+
         <div id='chat-outer' className='chat-outer' style={{height: `${Height}px`}}>
           <ul className='chat-box'>
             {this.props.list.map((value, index) =>
               <div key={index}>
-                {value.user == 'SYSTEM' &&
+                {value.user == 'SYSTEM' ?
                   <p className="system-log">
                     SYSTEM: {value.content}
                   </p>
-                }
-                {this.props.user.username == value.user && value.user != 'SYSTEM' &&
+                : this.props.user.username == value.user ?
                   <li key={index}>
-                    <span style={{color:'red', fontWeight:'bold'}}>{value.user}</span>: {value.content}
+                    <span style={{color:'red', fontWeight:'bold'}}>{value.user}: </span>
+                    {value.type=='chat' &&
+                      <span>{value.content}</span>
+                    }
+                    {value.type=='file' &&
+                      <a href={`/cfs/files/file/${value.fileId}`}
+                        download={value.content}>
+                        {value.content}
+                      </a>
+                    }
+
                   </li>
-                }
-                {this.props.user.username != value.user && value.user != 'SYSTEM' &&
+                : (this.props.user.username != value.user &&
                   <li key={index}>
-                    <span style={{color:'black', fontWeight:'bold'}}>{value.user}</span>: {value.content}
-                  </li>
+                    <span style={{color:'black', fontWeight:'bold'}}>{value.user}: </span>
+                      {value.type=='chat' &&
+                        <span>: {value.content}</span>
+                      }
+                      {value.type=='file' &&
+                        <a href={`/cfs/files/file/${value.fileId}`}
+                          download={value.content}>
+                          {value.content}
+                        </a>
+                      }
+                  </li>)
                 }
               </div>
             )}
