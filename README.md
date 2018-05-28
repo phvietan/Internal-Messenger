@@ -6,6 +6,8 @@ _ Install Meteor
 
 _ cd in the directory
 
+_ meteor npm install
+
 _ meteor run (default port is 3000)
 
 _ (Optional: to change the port, run: meteor run --port `number`)
