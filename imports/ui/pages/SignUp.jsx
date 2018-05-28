@@ -29,7 +29,9 @@ export default class SignUp extends Component {
     }, (err) => {
       if (err) {
         alert(err);
+        return;
       }
+      Meteor.call('chat-upload', `${username} has just created an account!!!`, 'SYSTEM');
     });
   }
 

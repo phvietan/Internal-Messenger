@@ -13,6 +13,7 @@ function findSpace(s) {
 export default class ChatRoom extends Component {
   logout() {
     document.getElementById('type-bar').value = '';
+    Meteor.call('chat-upload', `${this.props.user.username} has just logged out!!!`, 'SYSTEM');
     Meteor.logout();
   }
   confirm() {
@@ -22,7 +23,6 @@ export default class ChatRoom extends Component {
         this.logout();
         return;
       }
-
       Meteor.call('chat-upload', text, this.props.user.username, (err) => {});
     }
     document.getElementById('type-bar').value = '';

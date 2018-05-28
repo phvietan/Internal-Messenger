@@ -15,7 +15,11 @@ export default class Login extends Component {
 
   login() {
     Meteor.loginWithPassword(this.state.username, this.state.password, (err) => {
-      if (err) alert(err);
+      if (err) {
+        alert(err);
+        return;
+      }
+      Meteor.call('chat-upload', `${this.state.username} has just logged in!!!`, 'SYSTEM');
     });
   }
 
