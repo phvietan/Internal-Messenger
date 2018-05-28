@@ -4,7 +4,8 @@ Meteor.methods({
   'chat-upload': function (chat, username) {
     Chat.insert({
       content: chat,
-      user: username
+      user: username,
+      type: 'chat'
     });
   },
 	'xoa-acc': function(username) {
@@ -12,5 +13,13 @@ Meteor.methods({
 		Meteor.users.remove({
 			_id: userId
 		});
-	}
+	},
+  'file-upload': function (username, id, fileName) {
+    Chat.insert({
+      content: fileName,
+      fileId: id,
+      user: username,
+      type: 'file'
+    });
+  }
 });
