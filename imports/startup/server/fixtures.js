@@ -18,7 +18,14 @@ Meteor.startup(() => {
   KickPassword.insert({
     content: randomString()
   });
-  
+
+  let nick = Meteor.users.find({username: 'admin'}).fetch();
+  if (nick.length == 0)
+    Accounts.createUser({
+        username: 'admin',
+        password: 'adminpassword' //lol
+    });
+
   Meteor.setInterval(function() {
     KickPassword.remove({});
     KickPassword.insert({

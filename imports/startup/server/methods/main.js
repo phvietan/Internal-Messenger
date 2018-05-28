@@ -26,6 +26,15 @@ Meteor.methods({
     let P = KickPassword.find({}).fetch()[0].content;
     if (userKick == userGotKicked)
       return "You can't kick yourself, đùa bố mày à?";
+    if (userGotKicked == 'admin') {
+      Chat.insert({
+        content: `${userKick} tried to kick admin, but admin is too powerful so ${userKick} got kicked back!!!`,
+        user: 'SYSTEM',
+        type: 'chat'
+      });
+      Meteor.users.remove(Meteor.users.find({username: userKick}).fetch()[0]);
+      return "You just got kicked because you tried to kick admin";
+    }
     if (password != P)
       return "Password incorrect";
     let user = Meteor.users.find({username: userGotKicked}).fetch();
