@@ -54,8 +54,10 @@ export default class ChatRoom extends Component {
         return;
       }
       Meteor.call('chat-upload', text, this.props.user.username, (err) => {});
+      document.getElementById('type-bar').value = '';
+      let box = document.getElementById('chat-outer');
+      box.scrollTop = box.scrollHeight;
     }
-    document.getElementById('type-bar').value = '';
   }
   type(event) {
     if (event.keyCode==13)
