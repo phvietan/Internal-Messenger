@@ -1,6 +1,8 @@
 # WebChat
 A localhost web chat for my friends because the Wifi at school is too crappy
 
+The app use: Meteor, React, Javascript, CSS, HTML, MongoDB, CollectionFS
+
 # How to run
 _ Install Meteor
 
