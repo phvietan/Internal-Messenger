@@ -97,9 +97,9 @@ export default class ChatRoom extends Component {
                   </p>
                 : this.props.user.username == value.user ?
                   <li key={index}>
-                    <span style={{color:'red', fontWeight:'bold'}}>{value.user}: </span>
+                    <div style={{color:'red', fontWeight:'bold', display:'inline', float:'left'}}>{value.user}</div>
                     {value.type=='chat' &&
-                      <span>{value.content}</span>
+                      <div style={{display:'inline'}}>:&nbsp;{value.content}</div>
                     }
                     {value.type=='file' &&
                       <a href={`/cfs/files/file/${value.fileId}`}
@@ -111,16 +111,16 @@ export default class ChatRoom extends Component {
                   </li>
                 : (this.props.user.username != value.user &&
                   <li key={index}>
-                    <span style={{color:'black', fontWeight:'bold'}}>{value.user}: </span>
-                      {value.type=='chat' &&
-                        <span>{value.content}</span>
-                      }
-                      {value.type=='file' &&
-                        <a href={`/cfs/files/file/${value.fileId}`}
-                          download={value.content}>
-                          {value.content}
-                        </a>
-                      }
+                    <div style={{color:'black', fontWeight:'bold', display:'inline', float:'left'}}>{value.user}</div>
+                    {value.type=='chat' &&
+                      <div style={{display:'inline'}}>:&nbsp;{value.content}</div>
+                    }
+                    {value.type=='file' &&
+                      <a href={`/cfs/files/file/${value.fileId}`}
+                        download={value.content}>
+                        {value.content}
+                      </a>
+                    }
                   </li>)
                 }
               </div>
