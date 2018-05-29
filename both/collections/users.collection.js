@@ -7,7 +7,7 @@ KickPassword = new Mongo.Collection('KickPassword');
 FileS = new FS.Collection("file", {
   stores: [new FS.Store.FileSystem("file")],
   filter: {
-    maxSize: 20480,
+    maxSize: 20971520,
     onInvalid: function (message) {
       if (Meteor.isClient) {
         alert(message);
