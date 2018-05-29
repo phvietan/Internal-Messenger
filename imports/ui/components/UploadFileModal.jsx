@@ -3,6 +3,15 @@ import React, { Component } from 'react';
 import { Modal, Button, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 import '../css/UploadFileModal.css';
 
+function getBase64(file, callback) {
+  let result = '';
+  var reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = function () {
+    callback(reader.result)
+  };
+}
+
 function FieldGroup({ id, label, help, ...props }) {
   return (
     <FormGroup controlId={id}>
@@ -23,12 +32,17 @@ export default class UploadFileModal extends Component {
   submit() {
     let file = document.getElementById('formControlsFile').files[0];
     if (!file) return;
-    let name = file.name;
     let user = this.props.user;
+    if (file.type.slice(0,5)=='image') {
+      let base = getBase64(file, (result) => {
+        Meteor.call('image-upload', user.username, result);
+      });
+      this.props.onHideUpload();
+      return;
+    }
+    let name = file.name;
     FileS.insert(file, function(err, fileObj) {
       let id = fileObj._id;
-      //This code is pasted online
-      //It will catch the event when the file is fully uploaded onto server
       Meteor.call('file-upload', user.username, id, name);
     });
     this.props.onHideUpload();

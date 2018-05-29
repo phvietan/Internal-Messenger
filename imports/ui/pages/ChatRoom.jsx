@@ -5,22 +5,48 @@ import NavigationBar from '../components/NavigationBar';
 import UploadFileModal from '../components/UploadFileModal';
 import '../css/ChatRoom.css';
 
+const size = 280;
+const paddingName = size / 2 - 10;
+const styleNameOwner = {
+  color:'red',
+  fontWeight:'bold',
+  display:'inline',
+  float:'left'
+};
+const styleName = {
+  color:'black',
+  fontWeight:'bold',
+  display:'inline',
+  float:'left'
+};
+const styleNameOwnerImage = {
+  color:'red',
+  fontWeight:'bold',
+  display:'inline',
+  float:'left',
+  padding: `${paddingName}px 0`
+};
+const styleNameImage = {
+  color:'black',
+  fontWeight:'bold',
+  display:'inline',
+  float:'left',
+  padding: `${paddingName}px 0`
+};
+
 function getSpace(s) {
     for (let i = 0, n = s.length; i < n; ++i)
       if (s[i] == ' ') return i;
 }
 
-// document.onpaste = function(event){
-//   var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-//   console.log(JSON.stringify(items)); // will give you the mime types
-//   for (index in items) {
-//     var item = items[index];
-//     if (item.kind === 'file') {
-//       console.log(item);
-//       console.log('haha');
-//     }
-//   }
-// }
+function getBase64(file, callback) {
+  let result = '';
+  var reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = function () {
+    callback(reader.result)
+  };
+}
 
 export default class ChatRoom extends Component {
   constructor(props) {
@@ -64,22 +90,34 @@ export default class ChatRoom extends Component {
       this.confirm();
   }
   componentDidUpdate() {
-    let box = document.getElementById('chat-outer');
-    if (box.scrollTop==0 && this.state.beginRender) {
-      this.setState({
-        beginRender: false
-      }, () => {
+    if (!this.props.loading) {
+      let box = document.getElementById('chat-outer');
+      if (box.scrollTop==0 && this.state.beginRender) {
+        this.setState({
+          beginRender: false
+        }, () => {
+          box.scrollTop = box.scrollHeight;
+        });
+      }
+      if (box.scrollHeight - 1500 <= box.scrollTop)
         box.scrollTop = box.scrollHeight;
-      });
     }
-    if (box.scrollHeight - 1500 <= box.scrollTop)
-      box.scrollTop = box.scrollHeight;
   }
-  uploadFile() {
-    console.log('haha');
+  onPaste(event) {
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (index in items) {
+      var item = items[index];
+      if (item.kind === 'file' && item.type.slice(0,5)=='image') {
+        let blob = item.getAsFile();
+        let base = getBase64(blob, (result) => {
+          Meteor.call('image-upload', this.props.user.username, result);
+        });
+      }
+    }
   }
   render() {
     let Height = window.innerHeight - 150;
+
     return (
       <div>
         <NavigationBar
@@ -97,9 +135,11 @@ export default class ChatRoom extends Component {
                   </p>
                 : this.props.user.username == value.user ?
                   <li key={index}>
-                    <div style={{color:'red', fontWeight:'bold', display:'inline', float:'left'}}>{value.user}</div>
+                    <div style={value.type!='image' ? styleNameOwner : styleNameOwnerImage}>
+                      {value.user}:&nbsp;
+                    </div>
                     {value.type=='chat' &&
-                      <div style={{display:'inline'}}>:&nbsp;{value.content}</div>
+                      <div style={{display:'inline'}}>{value.content}</div>
                     }
                     {value.type=='file' &&
                       <a href={`/cfs/files/file/${value.fileId}`}
@@ -107,13 +147,17 @@ export default class ChatRoom extends Component {
                         {value.content}
                       </a>
                     }
+                    {value.type=='image' &&
+                      <img style={{width: `${size}px`, height: `${size}px`}} src={value.content}></img>}
 
                   </li>
                 : (this.props.user.username != value.user &&
                   <li key={index}>
-                    <div style={{color:'black', fontWeight:'bold', display:'inline', float:'left'}}>{value.user}</div>
+                    <div style={value.type!='image' ? styleName : styleNameImage}>
+                      {value.user}:&nbsp;
+                    </div>
                     {value.type=='chat' &&
-                      <div style={{display:'inline'}}>:&nbsp;{value.content}</div>
+                      <div style={{display:'inline'}}>{value.content}</div>
                     }
                     {value.type=='file' &&
                       <a href={`/cfs/files/file/${value.fileId}`}
@@ -121,6 +165,8 @@ export default class ChatRoom extends Component {
                         {value.content}
                       </a>
                     }
+                    {value.type=='image' &&
+                      <img style={{width: `${size}px`, height: `${size}px`}} src={value.content}></img>}
                   </li>)
                 }
               </div>
@@ -128,7 +174,8 @@ export default class ChatRoom extends Component {
           </ul>
         </div>
         <div className="type-group">
-          <input type="text" onKeyDown={this.type.bind(this)} className="type-bar" id='type-bar'/>
+          <input onPaste={this.onPaste.bind(this)} type="text" onKeyDown={this.type.bind(this)}
+            className="type-bar" id='type-bar'/>
         </div>
 
       </div>
