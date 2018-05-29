@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { FormControl, Button } from 'react-bootstrap';
 import NavigationBar from '../components/NavigationBar';
 import UploadFileModal from '../components/UploadFileModal';
+import PictureModal from '../components/PictureModal';
+import HelpModal from '../components/HelpModal';
 import '../css/ChatRoom.css';
 
 const size = 280;
@@ -52,7 +54,11 @@ export default class ChatRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      beginRender: true
+      beginRender: true,  //Render list chat
+      showPicture: false, //Modal Show Picture
+      imgSrc: null,       //Image source for modal Show picture
+      showUpload: false,  //Modal show upload
+      showHelp: false     //Modal show help
     }
   }
   logout() {
@@ -63,11 +69,8 @@ export default class ChatRoom extends Component {
   confirm() {
     let text = document.getElementById('type-bar').value;
     if (text != '') {
-      if (text == '/logout') {
-        this.logout();
-        return;
-      }
-      if (text.slice(0,5) == '/kick') {
+      if (text == '/logout') this.logout();
+      else if (text.slice(0,5) == '/kick') {
         let n = text.length;
         text = text.slice(6, n); //get the password and username
         let space = getSpace(text); //get the index of the space between <password> <username>
@@ -77,12 +80,19 @@ export default class ChatRoom extends Component {
           alert(result);
         });
         document.getElementById('type-bar').value = '';
-        return;
       }
-      Meteor.call('chat-upload', text, this.props.user.username, (err) => {});
-      document.getElementById('type-bar').value = '';
-      let box = document.getElementById('chat-outer');
-      box.scrollTop = box.scrollHeight;
+      else if (text.slice(0,7) == '/upload') {
+        this.showUpload();
+      }
+      else if (text.slice(0,5) == '/help') {
+        this.showHelp();
+      }
+      else {
+        Meteor.call('chat-upload', text, this.props.user.username, (err) => {});
+        document.getElementById('type-bar').value = '';
+        let box = document.getElementById('chat-outer');
+        box.scrollTop = box.scrollHeight;
+      }
     }
   }
   type(event) {
@@ -115,14 +125,51 @@ export default class ChatRoom extends Component {
       }
     }
   }
+  imageClick(index) {
+    let imageId = `${index}image`;
+    let image = document.getElementById(imageId);
+
+    this.setState({
+      imgSrc: image.src,
+      showPicture: true
+    });
+  }
+  hidePicture() {
+    this.setState({
+      imgSrc: null,
+      showPicture: false
+    });
+  }
+  hideUpload() {this.setState({ showUpload: false });}
+  showUpload() {this.setState({ showUpload: true });}
+  hideHelp() {this.setState({ showHelp: false });}
+  showHelp() {this.setState({ showHelp: true });}
+
   render() {
     let Height = window.innerHeight - 150;
-
     return (
       <div>
+        {/*Modal*/}
+        <PictureModal
+          showPicture={this.state.showPicture}
+          onHidePicture={this.hidePicture.bind(this)}
+          src={this.state.imgSrc}
+        />
+        <HelpModal
+          showHelp={this.state.showHelp}
+          onHideHelp={this.hideHelp.bind(this)}
+        />
+        <UploadFileModal
+          showUpload={this.state.showUpload}
+          onHideUpload={this.hideUpload.bind(this)}
+          user={this.props.user}
+        />
+        {/*Modal*/}
         <NavigationBar
           logout={this.logout.bind(this)}
           user={this.props.user}
+          showHelp={this.showHelp.bind(this)}
+          showUpload={this.showUpload.bind(this)}
         />
 
         <div id='chat-outer' className='chat-outer' style={{height: `${Height}px`}}>
@@ -148,8 +195,13 @@ export default class ChatRoom extends Component {
                       </a>
                     }
                     {value.type=='image' &&
-                      <img style={{width: `${size}px`, height: `${size}px`}} src={value.content}></img>}
-
+                      <img
+                        id={`${index}image`}
+                        onClick={this.imageClick.bind(this, index)}
+                        style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
+                        src={value.content}>
+                      </img>
+                    }
                   </li>
                 : (this.props.user.username != value.user &&
                   <li key={index}>
@@ -166,7 +218,13 @@ export default class ChatRoom extends Component {
                       </a>
                     }
                     {value.type=='image' &&
-                      <img style={{width: `${size}px`, height: `${size}px`}} src={value.content}></img>}
+                      <img
+                        id={`${index}image`}
+                        onClick={this.imageClick.bind(this, index)}
+                        style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
+                        src={value.content}>
+                      </img>
+                    }
                   </li>)
                 }
               </div>
