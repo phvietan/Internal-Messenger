@@ -22,6 +22,13 @@ Meteor.methods({
       type: 'file'
     });
   },
+  'image-upload': function (username, base64) {
+    Chat.insert({
+      content: base64,
+      type: 'image',
+      user: username
+    });
+  },
   'kick-user': function(password, userKick, userGotKicked) {
     let P = KickPassword.find({}).fetch()[0].content;
     if (userKick == userGotKicked)

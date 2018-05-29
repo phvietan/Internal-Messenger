@@ -3,10 +3,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import ChatRoom from '../pages/ChatRoom';
 
 export default withTracker(props => {
-  Meteor.subscribe('ChatDB');
+  let subscription = Meteor.subscribe('ChatDB');
+  let loading = !subscription.ready();
   let listChat = Chat.find().fetch();
   return {
     user: Meteor.user(),
-    list: listChat
+    list: listChat,
+    loading
   };
 })(ChatRoom);
