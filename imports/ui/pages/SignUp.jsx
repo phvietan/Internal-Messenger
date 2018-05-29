@@ -27,6 +27,14 @@ export default class SignUp extends Component {
       alert('Cannot create username as SYSTEM, Định troll bố à?');
       return;
     }
+    if (username.charAt(0) == ' ') {
+      alert('Cannot have space at the start of username');
+      return;
+    }
+    if (username.charAt(username.length-1) == ' ') {
+      alert('Cannot have space at the end of username');
+      return;
+    }
     Accounts.createUser({
         username: username,
         password: password
