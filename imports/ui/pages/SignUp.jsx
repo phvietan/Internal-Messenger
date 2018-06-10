@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { FormControl, Button } from 'react-bootstrap';
 import '../css/StartUp.css';
@@ -43,6 +42,7 @@ export default class SignUp extends Component {
         alert(err);
         return;
       }
+      this.props.history.replace('/chat');
       Meteor.call('chat-upload', `${username} has just created an account!!!`, 'SYSTEM');
     });
   }

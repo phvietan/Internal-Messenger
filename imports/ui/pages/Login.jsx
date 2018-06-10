@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { FormControl, Button } from 'react-bootstrap';
 import NavigationBar from '../components/NavigationBar';
@@ -19,6 +18,7 @@ export default class Login extends Component {
         alert(err);
         return;
       }
+      this.props.history.replace('/chat');
       Meteor.call('chat-upload', `${this.state.username} has just logged in!!!`, 'SYSTEM');
     });
   }
@@ -46,7 +46,7 @@ export default class Login extends Component {
   render() {
     return (
       <div>
-        
+
         {/*<NavigationBar/>*/}
         <div className="group">
           <h1>Login</h1>
