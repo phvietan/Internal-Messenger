@@ -1,6 +1,4 @@
-import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { FormControl, Button } from 'react-bootstrap';
 import NavigationBar from '../components/NavigationBar';
 import UploadFileModal from '../components/UploadFileModal';
 import PictureModal from '../components/PictureModal';
@@ -62,9 +60,14 @@ export default class ChatRoom extends Component {
     }
   }
   logout() {
-    document.getElementById('type-bar').value = '';
-    Meteor.call('chat-upload', `${this.props.user.username} has just logged out!!!`, 'SYSTEM');
-    Meteor.logout();
+    if (this.props.user != null) {
+      document.getElementById('type-bar').value = '';
+      Meteor.call('chat-upload', `${this.props.user.username} has just logged out!!!`, 'SYSTEM');
+      Meteor.logout(() => {
+      });
+    }
+    this.props.history.replace('/');
+
   }
   confirm() {
     let text = document.getElementById('type-bar').value;
@@ -100,7 +103,7 @@ export default class ChatRoom extends Component {
       this.confirm();
   }
   componentDidUpdate() {
-    if (!this.props.loading) {
+    if (!this.props.loading && this.props.user != null) {
       let box = document.getElementById('chat-outer');
       if (box.scrollTop==0 && this.state.beginRender) {
         this.setState({
@@ -165,77 +168,80 @@ export default class ChatRoom extends Component {
           user={this.props.user}
         />
         {/*Modal*/}
-        <NavigationBar
-          logout={this.logout.bind(this)}
-          user={this.props.user}
-          showHelp={this.showHelp.bind(this)}
-          showUpload={this.showUpload.bind(this)}
-        />
 
-        <div id='chat-outer' className='chat-outer' style={{height: `${Height}px`}}>
-          <ul className='chat-box'>
-            {this.props.list.map((value, index) =>
-              <div key={index}>
-                {value.user == 'SYSTEM' ?
-                  <p className="system-log">
-                    SYSTEM: {value.content}
-                  </p>
-                : this.props.user.username == value.user ?
-                  <li key={index}>
-                    <div style={value.type!='image' ? styleNameOwner : styleNameOwnerImage}>
-                      {value.user}:&nbsp;
-                    </div>
-                    {value.type=='chat' &&
-                      <div style={{display:'inline'}}>{value.content}</div>
-                    }
-                    {value.type=='file' &&
-                      <a href={`/cfs/files/file/${value.fileId}`}
-                        download={value.content}>
-                        {value.content}
-                      </a>
-                    }
-                    {value.type=='image' &&
-                      <img
-                        id={`${index}image`}
-                        onClick={this.imageClick.bind(this, index)}
-                        style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
-                        src={value.content}>
-                      </img>
-                    }
-                  </li>
-                : (this.props.user.username != value.user &&
-                  <li key={index}>
-                    <div style={value.type!='image' ? styleName : styleNameImage}>
-                      {value.user}:&nbsp;
-                    </div>
-                    {value.type=='chat' &&
-                      <div style={{display:'inline'}}>{value.content}</div>
-                    }
-                    {value.type=='file' &&
-                      <a href={`/cfs/files/file/${value.fileId}`}
-                        download={value.content}>
-                        {value.content}
-                      </a>
-                    }
-                    {value.type=='image' &&
-                      <img
-                        id={`${index}image`}
-                        onClick={this.imageClick.bind(this, index)}
-                        style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
-                        src={value.content}>
-                      </img>
-                    }
-                  </li>)
-                }
-              </div>
-            )}
-          </ul>
+      {this.props.user != null &&
+        <div>
+          <NavigationBar
+            logout={this.logout.bind(this)}
+            user={this.props.user}
+            showHelp={this.showHelp.bind(this)}
+            showUpload={this.showUpload.bind(this)}
+          />
+          <div id='chat-outer' className='chat-outer' style={{height: `${Height}px`}}>
+            <ul className='chat-box'>
+              {this.props.list.map((value, index) =>
+                <div key={index}>
+                  {value.user == 'SYSTEM' ?
+                    <p className="system-log">
+                      SYSTEM: {value.content}
+                    </p>
+                  : this.props.user.username == value.user ?
+                    <li key={index}>
+                      <div style={value.type!='image' ? styleNameOwner : styleNameOwnerImage}>
+                        {value.user}:&nbsp;
+                      </div>
+                      {value.type=='chat' &&
+                        <div style={{display:'inline'}}>{value.content}</div>
+                      }
+                      {value.type=='file' &&
+                        <a href={`/cfs/files/file/${value.fileId}`}
+                          download={value.content}>
+                          {value.content}
+                        </a>
+                      }
+                      {value.type=='image' &&
+                        <img
+                          id={`${index}image`}
+                          onClick={this.imageClick.bind(this, index)}
+                          style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
+                          src={value.content}>
+                        </img>
+                      }
+                    </li>
+                  : (this.props.user.username != value.user &&
+                    <li key={index}>
+                      <div style={value.type!='image' ? styleName : styleNameImage}>
+                        {value.user}:&nbsp;
+                      </div>
+                      {value.type=='chat' &&
+                        <div style={{display:'inline'}}>{value.content}</div>
+                      }
+                      {value.type=='file' &&
+                        <a href={`/cfs/files/file/${value.fileId}`}
+                          download={value.content}>
+                          {value.content}
+                        </a>
+                      }
+                      {value.type=='image' &&
+                        <img
+                          id={`${index}image`}
+                          onClick={this.imageClick.bind(this, index)}
+                          style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
+                          src={value.content}>
+                        </img>
+                      }
+                    </li>)
+                  }
+                </div>
+              )}
+            </ul>
+          </div>
+          <div className="type-group">
+            <input onPaste={this.onPaste.bind(this)} type="text" onKeyDown={this.type.bind(this)}
+              className="type-bar" id='type-bar'/>
+          </div>
         </div>
-        <div className="type-group">
-          <input onPaste={this.onPaste.bind(this)} type="text" onKeyDown={this.type.bind(this)}
-            className="type-bar" id='type-bar'/>
-        </div>
-
+      }
       </div>
     );
   }

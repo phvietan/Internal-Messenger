@@ -1,8 +1,6 @@
-import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { Modal, Button, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import '../css/HelpModal.css';
-import { FaQuestionCircle } from 'react-icons/lib/fa';
 
 export default class UploadFileModal extends Component {
   render() {
