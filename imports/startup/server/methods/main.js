@@ -14,17 +14,27 @@ Meteor.methods({
 			_id: userId
 		});
 	},
-  'file-upload': function (username, id, fileName) {
+  'file-upload': function (username, id, fileName, type, width, height) {
+    if (type=='file')
+      Chat.insert({
+        content: fileName,
+        fileId: id,
+        user: username,
+        type: type
+      });
+    else
     Chat.insert({
       content: fileName,
       fileId: id,
       user: username,
-      type: 'file'
+      type: type,
+      width: width,
+      height: height
     });
   },
   'image-upload': function (username, base64) {
     Chat.insert({
-      content: base64,
+      content: fileName,
       type: 'image',
       user: username
     });

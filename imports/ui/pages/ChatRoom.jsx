@@ -5,47 +5,22 @@ import PictureModal from '../components/PictureModal';
 import HelpModal from '../components/HelpModal';
 import '../css/ChatRoom.css';
 
-const size = 280;
-const paddingName = size / 2 - 10;
-const styleNameOwner = {
-  color:'red',
-  fontWeight:'bold',
-  display:'inline',
-  float:'left'
-};
-const styleName = {
-  color:'black',
-  fontWeight:'bold',
-  display:'inline',
-  float:'left'
-};
-const styleNameOwnerImage = {
-  color:'red',
-  fontWeight:'bold',
-  display:'inline',
-  float:'left',
-  padding: `${paddingName}px 0`
-};
-const styleNameImage = {
-  color:'black',
-  fontWeight:'bold',
-  display:'inline',
-  float:'left',
-  padding: `${paddingName}px 0`
-};
+const size = 400;
 
 function getSpace(s) {
     for (let i = 0, n = s.length; i < n; ++i)
       if (s[i] == ' ') return i;
 }
 
-function getBase64(file, callback) {
-  let result = '';
-  var reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = function () {
-    callback(reader.result)
-  };
+function minimum(x, y) {
+  if (x < y) return x;
+  return y;
+}
+
+function getSize(size, x, y) {
+  if (size >= x && size >= y) return x;
+  let k = minimum(size / x, size / y);
+  return x * k;
 }
 
 export default class ChatRoom extends Component {
@@ -55,6 +30,9 @@ export default class ChatRoom extends Component {
       beginRender: true,  //Render list chat
       showPicture: false, //Modal Show Picture
       imgSrc: null,       //Image source for modal Show picture
+      imgWidth: null,
+      imgHeight: null,
+      isClickImage: false,
       showUpload: false,  //Modal show upload
       showHelp: false     //Modal show help
     }
@@ -103,7 +81,7 @@ export default class ChatRoom extends Component {
       this.confirm();
   }
   componentDidUpdate() {
-    if (!this.props.loading && this.props.user != null) {
+    if (!this.props.loading && this.state.isClickImage == false) {
       let box = document.getElementById('chat-outer');
       if (box.scrollTop==0 && this.state.beginRender) {
         this.setState({
@@ -112,18 +90,35 @@ export default class ChatRoom extends Component {
           box.scrollTop = box.scrollHeight;
         });
       }
-      if (box.scrollHeight - 1500 <= box.scrollTop)
+      if (box.scrollHeight - 1000 <= box.scrollTop)
         box.scrollTop = box.scrollHeight;
     }
   }
   onPaste(event) {
-    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    let items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    let user = this.props.user;
     for (index in items) {
       var item = items[index];
       if (item.kind === 'file' && item.type.slice(0,5)=='image') {
-        let blob = item.getAsFile();
-        let base = getBase64(blob, (result) => {
-          Meteor.call('image-upload', this.props.user.username, result);
+        let file = item.getAsFile();
+        FileS.insert(file, function(err, fileObj) {
+          let id = fileObj._id;
+          //This code is pasted online
+          //It will catch the event when the file is fully uploaded onto server
+          var cursor = FileS.find(id);
+          var liveQuery = cursor.observe({
+            changed: function(newFile) {
+              if (newFile.isUploaded()) {
+                liveQuery.stop();
+                // After file fully uploaded on server, update the documents of mongodb
+                var img = new Image;
+                img.onload = function() {
+                  Meteor.call('file-upload', user.username, id, 'From Clipboard', 'image', img.width, img.height);
+                };
+                img.src = `/cfs/files/file/${id}`;
+              }
+            }
+          });
         });
       }
     }
@@ -131,10 +126,15 @@ export default class ChatRoom extends Component {
   imageClick(index) {
     let imageId = `${index}image`;
     let image = document.getElementById(imageId);
-
+    let n = image.src.length;
+    let fileId = image.src.slice(37, n);
+    let mess = Chat.findOne({fileId: fileId});
     this.setState({
       imgSrc: image.src,
-      showPicture: true
+      showPicture: true,
+      imgWidth: mess.width,
+      imgHeight: mess.height,
+      isClickImage: true
     });
   }
   hidePicture() {
@@ -149,6 +149,7 @@ export default class ChatRoom extends Component {
   showHelp() {this.setState({ showHelp: true });}
 
   render() {
+    this.state.isClickImage = false;
     let Height = window.innerHeight - 150;
     return (
       <div>
@@ -157,6 +158,8 @@ export default class ChatRoom extends Component {
           showPicture={this.state.showPicture}
           onHidePicture={this.hidePicture.bind(this)}
           src={this.state.imgSrc}
+          width={this.state.imgWidth}
+          height={this.state.imgHeight}
         />
         <HelpModal
           showHelp={this.state.showHelp}
@@ -185,13 +188,21 @@ export default class ChatRoom extends Component {
                     <p className="system-log">
                       SYSTEM: {value.content}
                     </p>
-                  : this.props.user.username == value.user ?
+                  :
                     <li key={index}>
-                      <div style={value.type!='image' ? styleNameOwner : styleNameOwnerImage}>
+                      <div style={{
+                          color: value.user == this.props.user.username ? 'red' : 'black',
+                          fontWeight:'bold',
+                          display:'inline',
+                          float:'left',
+                          paddingTop: value.type=='image' ? `${getSize(size,value.height,value.width)/2 - 15}px` : '0px'
+                        }}>
                         {value.user}:&nbsp;
                       </div>
                       {value.type=='chat' &&
-                        <div style={{display:'inline'}}>{value.content}</div>
+                        <div style={{display:'inline'}}>
+                          {value.content}
+                        </div>
                       }
                       {value.type=='file' &&
                         <a href={`/cfs/files/file/${value.fileId}`}
@@ -203,34 +214,16 @@ export default class ChatRoom extends Component {
                         <img
                           id={`${index}image`}
                           onClick={this.imageClick.bind(this, index)}
-                          style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
-                          src={value.content}>
+                          style={
+                            {width: `${getSize(size,value.width,value.height)}px`,
+                            height: `${getSize(size,value.height,value.width)}px`,
+                            cursor: 'pointer',
+                            borderRadius: '40px'}
+                          }
+                          src={`/cfs/files/file/${value.fileId}`}>
                         </img>
                       }
                     </li>
-                  : (this.props.user.username != value.user &&
-                    <li key={index}>
-                      <div style={value.type!='image' ? styleName : styleNameImage}>
-                        {value.user}:&nbsp;
-                      </div>
-                      {value.type=='chat' &&
-                        <div style={{display:'inline'}}>{value.content}</div>
-                      }
-                      {value.type=='file' &&
-                        <a href={`/cfs/files/file/${value.fileId}`}
-                          download={value.content}>
-                          {value.content}
-                        </a>
-                      }
-                      {value.type=='image' &&
-                        <img
-                          id={`${index}image`}
-                          onClick={this.imageClick.bind(this, index)}
-                          style={{width: `${size}px`, height: `${size}px`, cursor: 'pointer'}}
-                          src={value.content}>
-                        </img>
-                      }
-                    </li>)
                   }
                 </div>
               )}

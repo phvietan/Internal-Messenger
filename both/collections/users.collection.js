@@ -36,6 +36,7 @@ FileS.allow({
 });
 
 FileS.on('uploaded', function (fileObj) {
+  return true;
 });
 
 module.exports = {
