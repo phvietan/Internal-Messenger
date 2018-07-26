@@ -43,7 +43,7 @@ export default class SignUp extends Component {
         return;
       }
       this.props.history.replace('/chat');
-      Meteor.call('chat-upload', `${username} has just created an account!!!`, 'SYSTEM');
+      Meteor.call('system-call', 'has just created an account!!!');
     });
   }
 

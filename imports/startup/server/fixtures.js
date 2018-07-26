@@ -10,9 +10,9 @@ function randomString() {
 }
 
 Meteor.startup(() => {
-  // Chat.remove({});
-  // FileS.remove({});
-  // Meteor.users.remove({});
+  Chat.remove({});
+  FileS.remove({});
+  Meteor.users.remove({});
 
   KickPassword.remove({});
   KickPassword.insert({

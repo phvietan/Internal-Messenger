@@ -1,20 +1,26 @@
 import { Meteor } from 'meteor/meteor';
 
 Meteor.methods({
-  'chat-upload': function (chat, username) {
+  'chat-upload': function (chat) {
+    let username = Meteor.user().username;
     Chat.insert({
       content: chat,
       user: username,
       type: 'chat'
     });
   },
-	'xoa-acc': function(username) {
-		let userId = Meteor.users.find({username: username}).fetch()[0]._id;
-		Meteor.users.remove({
-			_id: userId
-		});
-	},
+  'system-call': function (message) {
+    let username = Meteor.user().username;
+    message = username + ' ' + message;
+    console.log(message);
+    Chat.insert({
+      content: message,
+      user: 'SYSTEM',
+      type: 'chat'
+    });
+  },
   'file-upload': function (username, id, fileName, type, width, height) {
+    username = Meteor.user().username;
     if (type=='file')
       Chat.insert({
         content: fileName,
@@ -30,13 +36,6 @@ Meteor.methods({
       type: type,
       width: width,
       height: height
-    });
-  },
-  'image-upload': function (username, base64) {
-    Chat.insert({
-      content: fileName,
-      type: 'image',
-      user: username
     });
   },
   'kick-user': function(password, userKick, userGotKicked) {
