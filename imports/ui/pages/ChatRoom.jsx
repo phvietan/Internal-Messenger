@@ -40,8 +40,8 @@ export default class ChatRoom extends Component {
   logout() {
     if (this.props.user != null) {
       document.getElementById('type-bar').value = '';
-      Meteor.call('chat-upload', `${this.props.user.username} has just logged out!!!`, 'SYSTEM');
-      Meteor.logout(() => {
+      Meteor.call('system-call', 'has just logged out!!!', () => {
+        Meteor.logout();
       });
     }
     this.props.history.replace('/');
@@ -83,6 +83,7 @@ export default class ChatRoom extends Component {
   componentDidUpdate() {
     if (!this.props.loading && this.state.isClickImage == false) {
       let box = document.getElementById('chat-outer');
+      if (box == null) return;
       if (box.scrollTop==0 && this.state.beginRender) {
         this.setState({
           beginRender: false
@@ -90,7 +91,7 @@ export default class ChatRoom extends Component {
           box.scrollTop = box.scrollHeight;
         });
       }
-      if (box.scrollHeight - 1000 <= box.scrollTop)
+      if (box.scrollHeight - 1300 <= box.scrollTop)
         box.scrollTop = box.scrollHeight;
     }
   }

@@ -19,7 +19,7 @@ export default class Login extends Component {
         return;
       }
       this.props.history.replace('/chat');
-      Meteor.call('chat-upload', `${this.state.username} has just logged in!!!`, 'SYSTEM');
+      Meteor.call('system-call', 'has just logged in!!!');
     });
   }
 
